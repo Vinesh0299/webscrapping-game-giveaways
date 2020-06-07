@@ -2,18 +2,20 @@ import requests
 from bs4 import BeautifulSoup
 import smtplib
 
-url = 'https://gamesystemrequirements.com/'
-
-#headers = {"User-Agent": 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36'}
+urls = ['https://gamesystemrequirements.com/']
 
 def get_data(url):
     page = requests.get(url)
 
     soup = BeautifulSoup(page.content, 'html.parser')
-    title = soup.find_all("a", "main_newshl_box")
-
-    for product in title:
-        print(product.find("div", "main_newshl_box_title").find("span").get_text())
+    titles = soup.find('div', 'main_newshl_cont mnb_fthl')
+    
+    for title in titles:
+        data = title.find('div', 'main_newshl_box_title').find('span').get_text()
+        if('free' in data.lower()):
+            with open("already_sent.txt", "a") as file:
+                file.write(data+"\n")
+            print(data)
 
 def send_mail():
     server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -22,4 +24,7 @@ def send_mail():
     server.ehlo()
 
     server.login('madarauchiha3524@gmail.com', 'xpbrobdjoyaleffs')
-get_data(url)
+
+if __name__ == '__main__':
+    for url in urls:
+        get_data(url)
